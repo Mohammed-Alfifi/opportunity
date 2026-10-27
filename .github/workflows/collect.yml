@@ -10,8 +10,15 @@ jobs:
   collect:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    # قبل ضبط السرّين تتخطى المهمة بهدوء بدل أن تفشل كل ساعة
+    env:
+      CONFIGURED: ${{ secrets.FORSA_URL != '' && secrets.CRON_TOKEN != '' }}
     steps:
+      - name: Not configured yet
+        if: env.CONFIGURED != 'true'
+        run: echo "::notice::أضف FORSA_URL و CRON_TOKEN في أسرار المستودع لتفعيل الجمع"
       - name: Wake service
+        if: env.CONFIGURED == 'true'
         env:
           FORSA_URL: ${{ secrets.FORSA_URL }}
         run: |
@@ -21,6 +28,7 @@ jobs:
           done
           echo "service did not wake up" >&2; exit 1
       - name: Trigger collection
+        if: env.CONFIGURED == 'true'
         env:
           FORSA_URL: ${{ secrets.FORSA_URL }}
           CRON_TOKEN: ${{ secrets.CRON_TOKEN }}
