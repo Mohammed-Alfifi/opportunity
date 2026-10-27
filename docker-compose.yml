@@ -1,0 +1,14 @@
+# التشغيل المحلي بحاوية واحدة: افتح http://localhost:8000
+services:
+  forsa:
+    build: .
+    env_file: .env
+    environment:
+      DATA_DIR: /data
+    volumes:
+      - ./data:/data
+    ports:
+      - "127.0.0.1:8000:8000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped

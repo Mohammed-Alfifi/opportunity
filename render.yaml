@@ -1,0 +1,41 @@
+# Render Blueprint: خدمة ويب مجانية واحدة. القيم ذات sync: false تُدخلها في لوحة Render عند الإنشاء.
+services:
+  - type: web
+    name: forsa
+    runtime: docker
+    plan: free
+    region: frankfurt
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      # الخدمة المجانية تنام بعد 15 دقيقة خمول؛ الجمع تشغّله GitHub Actions كل ساعة بدل المجدول الداخلي
+      - key: SCHEDULER_ENABLED
+        value: "false"
+      - key: DATABASE_URL
+        sync: false
+      - key: APP_PASSWORD
+        sync: false
+      - key: SECRET_KEY
+        generateValue: true
+      - key: CRON_TOKEN
+        sync: false
+      - key: MAIL_TRANSPORT
+        value: gas
+      - key: GAS_URL
+        sync: false
+      - key: GAS_TOKEN
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_FROM_NAME
+        sync: false
+      # قراءة تنبيهات لينكدإن وجدارات من بريدك (IMAP على المنفذ 993 غير محجوب)
+      - key: IMAP_USER
+        sync: false
+      - key: IMAP_PASSWORD
+        sync: false
+      - key: LLM_PROVIDER
+        value: none

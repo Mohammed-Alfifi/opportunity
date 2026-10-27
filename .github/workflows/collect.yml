@@ -1,0 +1,28 @@
+# يوقظ خدمة Render النائمة كل ساعة ويطلب جمع الوظائف الجديدة.
+# الأسرار المطلوبة في المستودع: FORSA_URL (مثل https://forsa-xxxx.onrender.com) و CRON_TOKEN.
+name: collect-jobs
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+permissions: {}
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Wake service
+        env:
+          FORSA_URL: ${{ secrets.FORSA_URL }}
+        run: |
+          for i in $(seq 1 12); do
+            if curl -fsS --max-time 30 "$FORSA_URL/api/health"; then exit 0; fi
+            sleep 10
+          done
+          echo "service did not wake up" >&2; exit 1
+      - name: Trigger collection
+        env:
+          FORSA_URL: ${{ secrets.FORSA_URL }}
+          CRON_TOKEN: ${{ secrets.CRON_TOKEN }}
+        run: |
+          curl -fsS --max-time 30 -X POST -H "Authorization: Bearer $CRON_TOKEN" "$FORSA_URL/api/cron/collect"
